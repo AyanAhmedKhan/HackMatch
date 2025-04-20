@@ -1,0 +1,101 @@
+{% extends 'finder/base.html' %}
+
+{% block title %}{{ profile.user.username }}'s Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl">
+    <div class="glass-effect rounded-xl overflow-hidden card-hover">
+        <div class="p-6 lg:p-8">
+            <!-- Profile Header -->
+            <div class="text-center mb-8">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" class="rounded-full h-32 w-32 object-cover mx-auto mb-4 border-2 border-opacity-20 border-accent-blue" alt="Profile picture">
+                {% else %}
+                    <div class="rounded-full h-32 w-32 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-accent-blue to-accent-purple">
+                        <i class="fas fa-user text-4xl text-white"></i>
+                    </div>
+                {% endif %}
+                <h2 class="text-2xl font-bold mb-2 text-gradient">{{ profile.user.username }}</h2>
+                {% if profile.location %}
+                    <p class="text-gray-400 flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt mr-2"></i> {{ profile.location }}
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Bio Section -->
+            {% if profile.bio %}
+                <div class="mb-8">
+                    <h5 class="text-lg font-semibold mb-3 text-white border-b border-opacity-20 border-accent-blue pb-2">About</h5>
+                    <p class="text-gray-300">{{ profile.bio }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Skills Section -->
+            {% if profile.skills.all %}
+                <div class="mb-8">
+                    <h5 class="text-lg font-semibold mb-3 text-white border-b border-opacity-20 border-accent-blue pb-2">Skills</h5>
+                    <div class="flex flex-wrap gap-2">
+                        {% for skill in profile.skills.all %}
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-gradient-to-r from-accent-blue to-accent-indigo text-white blue-glow">{{ skill.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Tech Stack Section -->
+            {% if profile.tech_stack.all %}
+                <div class="mb-8">
+                    <h5 class="text-lg font-semibold mb-3 text-white border-b border-opacity-20 border-accent-blue pb-2">Tech Stack</h5>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tech in profile.tech_stack.all %}
+                            <span class="px-3 py-1 text-sm font-medium rounded-full glass-effect border border-opacity-20 border-accent-blue text-gray-300">{{ tech.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Hackathons Section -->
+            {% if profile.interested_hackathons.all %}
+                <div class="mb-8">
+                    <h5 class="text-lg font-semibold mb-3 text-white border-b border-opacity-20 border-accent-blue pb-2">Interested in Hackathons</h5>
+                    <div class="space-y-4">
+                        {% for hackathon in profile.interested_hackathons.all %}
+                            <div class="glass-effect rounded-lg p-4 border border-opacity-10 border-accent-blue">
+                                <h6 class="text-white font-medium mb-2">{{ hackathon.name }}</h6>
+                                <p class="text-gray-300 text-sm mb-2">{{ hackathon.description|truncatewords:30 }}</p>
+                                <div class="text-gray-400 text-xs flex items-center">
+                                    <i class="fas fa-calendar mr-1"></i> 
+                                    <span>{{ hackathon.start_date }} - {{ hackathon.end_date }}</span>
+                                    {% if hackathon.website %}
+                                        <span class="mx-2">|</span>
+                                        <a href="{{ hackathon.website }}" target="_blank" class="text-accent-cyan hover:text-white transition-colors flex items-center">
+                                            Website <i class="fas fa-external-link-alt ml-1"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between">
+                {% if user == profile.user %}
+                    <a href="{% url 'edit_profile' %}" class="btn-gradient px-4 py-2 rounded-lg text-white font-medium flex items-center">
+                        <i class="fas fa-edit mr-2"></i> Edit Profile
+                    </a>
+                {% else %}
+                    <a href="{% url 'send_message' profile.user.pk %}" class="btn-gradient px-4 py-2 rounded-lg text-white font-medium flex items-center">
+                        <i class="fas fa-envelope mr-2"></i> Send Message
+                    </a>
+                {% endif %}
+                <a href="{% url 'profile_list' %}" class="glass-effect px-4 py-2 rounded-lg text-gray-300 hover:text-white font-medium border border-opacity-20 border-accent-blue flex items-center transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

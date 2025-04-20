@@ -1,0 +1,1094 @@
+{% extends 'finder/base.html' %}
+{% block title %}Edit Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4">
+    <div
+        class="glass-effect rounded-2xl overflow-hidden shadow-xl card-hover transform transition-all hover:scale-[1.01] border border-accent-blue/10">
+        <div class="border-b border-accent-blue/20 p-8 bg-gradient-to-r from-dark-900/70 to-dark-800/70">
+            <h2 class="text-3xl font-bold text-white tracking-tight flex items-center">
+                <span class="mr-3 text-accent-blue"><i class="fas fa-user-edit"></i></span>
+                Edit Profile
+            </h2>
+        </div>
+
+        <div class="p-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+
+                <!-- Profile Picture Section -->
+                {% if form.profile_picture %}
+                <div class="text-center mb-10">
+                    {% if user.profile.profile_picture %}
+                    <div class="relative inline-block">
+                        <img src="{{ user.profile.profile_picture.url }}"
+                            class="rounded-full mx-auto object-cover border-4 border-accent-blue/40 blue-glow shadow-lg"
+                            width="180" height="180" alt="Current profile picture">
+                        <div class="absolute -bottom-2 -right-2 bg-accent-blue rounded-full p-2 shadow-lg blue-glow">
+                            <label for="{{ form.profile_picture.id_for_label }}" class="cursor-pointer">
+                                <i class="fas fa-camera text-white"></i>
+                            </label>
+                            <input id="{{ form.profile_picture.id_for_label }}"
+                                name="{{ form.profile_picture.html_name }}" type="file" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="relative inline-block">
+                        <div class="rounded-full bg-gradient-to-br from-dark-800 to-dark-900 mx-auto flex items-center justify-center blue-glow border-4 border-accent-blue/30 shadow-lg"
+                            style="width: 180px; height: 180px;">
+                            <i class="fas fa-user text-5xl text-gray-400"></i>
+                        </div>
+                        <div class="absolute -bottom-2 -right-2 bg-accent-blue rounded-full p-2 shadow-lg blue-glow">
+                            <label for="{{ form.profile_picture.id_for_label }}" class="cursor-pointer">
+                                <i class="fas fa-camera text-white"></i>
+                            </label>
+                            <input id="{{ form.profile_picture.id_for_label }}"
+                                name="{{ form.profile_picture.html_name }}" type="file" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Main Sections Container -->
+                <div class="grid grid-cols-1 gap-10">
+                    <!-- Basic Info Section -->
+                    <section class="bg-dark-900/50 rounded-xl p-6 border border-gray-800">
+                        <h3 class="font-semibold text-xl text-white mb-6 flex items-center">
+                            <span class="text-accent-blue mr-2"><i class="fas fa-info-circle"></i></span>
+                            Basic Information
+                        </h3>
+
+                        <div class="space-y-6">
+                            <!-- Bio Field -->
+                            <div>
+                                <label for="{{ form.bio.id_for_label }}"
+                                    class="block text-sm font-medium text-gray-300 mb-2">
+                                    About me
+                                </label>
+                                {{ form.bio }}
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Location Field -->
+                                <div>
+                                    <label for="{{ form.location.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-300 mb-2">
+                                        Location
+                                    </label>
+                                    {{ form.location }}
+                                </div>
+
+                                <!-- Looking for Team Members -->
+                                <div class="flex items-center">
+                                    <div class="relative flex items-start">
+                                        <div class="flex items-center h-5">
+                                            {{ form.looking_for_team }}
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="{{ form.looking_for_team.id_for_label }}"
+                                                class="text-gray-300 cursor-pointer">
+                                                Actively looking for team members
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- College and Branch Fields -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="{{ form.college.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-300 mb-2">
+                                        College/University
+                                    </label>
+                                    {{ form.college }}
+                                </div>
+                                <div>
+                                    <label for="{{ form.branch.id_for_label }}"
+                                        class="block text-sm font-medium text-gray-300 mb-2">
+                                        Branch of Study
+                                    </label>
+                                    {{ form.branch }}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Skills Section -->
+                    <section class="bg-dark-900/50 rounded-xl p-6 border border-gray-800">
+                        <h3 class="font-semibold text-xl text-white mb-6 flex items-center">
+                            <span class="text-accent-blue mr-2"><i class="fas fa-code"></i></span>
+                            Skills & Expertise
+                        </h3>
+
+                        <div class="space-y-6">
+                            <!-- Skills -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-4">Your Skills</label>
+
+                                <div class="hidden">
+                                    {{ form.skills }}
+                                </div>
+
+                                <div class="mt-2 flex flex-wrap gap-2" id="skills-tags">
+                                    {% for skill in user.profile.skills.all %}
+                                    <span
+                                        class="bg-gradient-to-r from-accent-blue/20 to-accent-blue/30 text-accent-blue px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 border border-accent-blue/20">
+                                        {{ skill.name }}
+                                        <span
+                                            class="remove-tag cursor-pointer hover:bg-accent-blue/20 rounded-full w-5 h-5 flex items-center justify-center transition-all"
+                                            data-id="{{ skill.id }}">×</span>
+                                    </span>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="mt-5">
+                                    <label for="{{ form.new_skills.id_for_label }}"
+                                        class="block text-sm text-gray-300 mb-2">Add New Skills</label>
+                                    <div class="flex gap-3">
+                                        <input type="text" id="id_new_skills" name="new_skills"
+                                            class="flex-1 bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-full px-4 py-3 text-white placeholder-gray-500 transition-all shadow-inner"
+                                            placeholder="Enter skill name">
+                                        <button type="button" id="add-skill-btn"
+                                            class="px-4 py-2 bg-accent-blue/80 hover:bg-accent-blue rounded-full text-white transition-all">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">Separate multiple skills with commas</p>
+                                </div>
+                            </div>
+
+                            <!-- Tech Stack -->
+                            <div class="pt-4 border-t border-gray-800">
+                                <label class="block text-sm font-medium text-gray-300 mb-4">Tech Stack</label>
+
+                                <div class="hidden">
+                                    {{ form.tech_stack }}
+                                </div>
+
+                                <div class="mt-2 flex flex-wrap gap-2" id="tech-tags">
+                                    {% for tech in user.profile.tech_stack.all %}
+                                    <span
+                                        class="bg-gradient-to-r from-purple-500/20 to-purple-600/30 text-purple-400 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 border border-purple-500/20">
+                                        {{ tech.name }}
+                                        <span
+                                            class="remove-tag cursor-pointer hover:bg-purple-500/20 rounded-full w-5 h-5 flex items-center justify-center transition-all"
+                                            data-id="{{ tech.id }}">×</span>
+                                    </span>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="mt-5">
+                                    <label for="{{ form.new_tech_stack.id_for_label }}"
+                                        class="block text-sm text-gray-300 mb-2">Add New Technologies</label>
+                                    <div class="flex gap-3">
+                                        <input type="text" id="id_new_tech_stack" name="new_tech_stack"
+                                            class="flex-1 bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-full px-4 py-3 text-white placeholder-gray-500 transition-all shadow-inner"
+                                            placeholder="Enter technology name">
+                                        <button type="button" id="add-tech-btn"
+                                            class="px-4 py-2 bg-purple-600/80 hover:bg-purple-600 rounded-full text-white transition-all">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">Separate multiple technologies with commas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Hackathon Section - Focus on Current/Future Participation -->
+                    <section class="bg-dark-900/50 rounded-xl p-6 border border-gray-800">
+                        <h3 class="font-semibold text-xl text-white mb-6 flex items-center">
+                            <span class="text-accent-blue mr-2"><i class="fas fa-trophy"></i></span>
+                            Hackathons I'm Participating In
+                        </h3>
+
+                        <div class="space-y-6">
+                            <div class="hidden">
+                                {{ form.interested_hackathons }}
+                            </div>
+
+                            <!-- Current Hackathon Participation List -->
+                            <div class="space-y-3" id="hackathon-list">
+                                {% for hackathon in user.profile.interested_hackathons.all %}
+                                <div
+                                    class="bg-gradient-to-r from-dark-800 to-dark-900 p-4 rounded-lg border border-gray-800 shadow-md hackathon-item">
+                                    <div class="flex justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <span class="font-medium text-white">{{ hackathon.name }}</span>
+                                            <span
+                                                class="text-xs px-3 py-1 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/20">
+                                                {{ hackathon.get_level_display }}
+                                            </span>
+                                            {% if hackathon.start_date|date:"Y-m-d" >= today %}
+                                            <span
+                                                class="text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/20">
+                                                Upcoming
+                                            </span>
+                                            {% else %}
+                                            <span
+                                                class="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/20">
+                                                Current
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <span class="text-sm text-gray-400">{{ hackathon.start_date }}</span>
+                                            <button type="button"
+                                                class="text-red-400 hover:text-red-300 remove-hackathon"
+                                                data-id="{{ hackathon.id }}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-300 mt-2">{{ hackathon.description|truncatechars:100 }}
+                                    </p>
+                                    <div class="flex gap-2 mt-3">
+                                        <span class="text-xs px-2 py-1 rounded-full bg-dark-700 text-gray-400">
+                                            <i class="fas fa-users mr-1"></i> Team Size: {{
+                                            hackathon.team_size|default:"Open" }}
+                                        </span>
+                                        {% if hackathon.registration_deadline %}
+                                        <span class="text-xs px-2 py-1 rounded-full bg-dark-700 text-gray-400">
+                                            <i class="fas fa-calendar-alt mr-1"></i> Register by: {{
+                                            hackathon.registration_deadline }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Add New Hackathon Form -->
+                            <div class="mt-6 bg-dark-800/70 rounded-lg p-5 border border-gray-700">
+                                <h4 class="text-sm font-medium text-white mb-4 flex items-center">
+                                    <span class="text-accent-blue mr-2"><i class="fas fa-plus-circle"></i></span>
+                                    Add Hackathon to Participate In
+                                </h4>
+
+                                <div class="space-y-5">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="{{ form.hackathon_name.id_for_label }}"
+                                                class="block text-sm text-gray-300 mb-2">Hackathon Name</label>
+                                            <input type="text" id="id_hackathon_name" name="hackathon_name"
+                                                class="w-full bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-full px-4 py-3 text-white placeholder-gray-500 transition-all shadow-inner">
+                                        </div>
+
+                                        <div>
+                                            <label for="{{ form.hackathon_level.id_for_label }}"
+                                                class="block text-sm text-gray-300 mb-2">Level</label>
+                                            <select id="id_hackathon_level" name="hackathon_level"
+                                                class="w-full bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-full px-4 py-3 text-white placeholder-gray-500 transition-all shadow-inner">
+                                                <option value="local">Local</option>
+                                                <option value="national">National</option>
+                                                <option value="international">International</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="{{ form.hackathon_date.id_for_label }}"
+                                                class="block text-sm text-gray-300 mb-2">Event Date</label>
+                                            <input type="date" id="id_hackathon_date" name="hackathon_date"
+                                                class="w-full bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-full px-4 py-3 text-white placeholder-gray-500 transition-all shadow-inner">
+                                        </div>
+
+                                        <div>
+                                            <label for="id_hackathon_location" class="block text-sm text-gray-300 mb-2">Location</label>
+                                            <input type="text" id="id_hackathon_location" name="hackathon_location"
+                                                class="w-full bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-full px-4 py-3 text-white placeholder-gray-500 transition-all shadow-inner"
+                                                placeholder="e.g., New York or Online">
+                                        </div>
+
+                                        <div>
+                                            <label for="{{ form.hackathon_role.id_for_label }}"
+                                                class="block text-sm text-gray-300 mb-2">Your Role/Interest</label>
+                                            <input type="text" id="id_hackathon_role" name="hackathon_role"
+                                                class="w-full bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-full px-4 py-3 text-white placeholder-gray-500 transition-all shadow-inner"
+                                                placeholder="e.g. Frontend Developer">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="{{ form.hackathon_description.id_for_label }}"
+                                            class="block text-sm text-gray-300 mb-2">Description/Goals</label>
+                                        <textarea id="id_hackathon_description" name="hackathon_description" rows="3"
+                                            class="w-full bg-dark-800 border border-gray-700 focus:border-accent-blue focus:ring focus:ring-accent-blue/20 rounded-2xl px-5 py-4 text-white placeholder-gray-500 transition-all shadow-inner"></textarea>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <button type="button" id="add-hackathon-btn"
+                                            class="px-4 py-2 bg-accent-blue text-white rounded-full hover:bg-accent-blue/80 transition-all">
+                                            <i class="fas fa-plus mr-2"></i> Add to My Hackathons
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-between pt-6 mt-8 border-t border-gray-700">
+                    <a href="{% url 'profile_detail' user.profile.pk %}"
+                        class="px-6 py-3 rounded-full text-gray-300 border border-gray-700 hover:bg-dark-800 transition-all flex items-center group">
+                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                        Back to Profile
+                    </a>
+                    <button type="submit"
+                        class="btn-gradient text-white rounded-full px-8 py-3 transition-all flex items-center group hover:shadow-lg">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Changes
+                        <i
+                            class="fas fa-chevron-right ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                    </button>
+                    
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize hidden selects when page loads
+        //which deletes but not saves
+        updateHiddenSelects();
+
+        // Skill tag removal
+        document.querySelectorAll('#skills-tags .remove-tag').forEach(tag => {
+            tag.addEventListener('click', function () {
+                const skillId = this.getAttribute('data-id');
+                const skillSelect = document.getElementById('id_skills');
+
+                // Remove from select
+                if (skillSelect) {
+                    for (let i = 0; i < skillSelect.options.length; i++) {
+                        if (skillSelect.options[i].value === skillId) {
+                            skillSelect.options[i].selected = false;
+                        }
+                    }
+                }
+
+                // Remove from display with animation
+                const tagElement = this.parentElement;
+                tagElement.classList.add('scale-0', 'opacity-0');
+                setTimeout(() => {
+                    tagElement.remove();
+                    updateHiddenSelects(); // Update after removal
+                }, 200);
+            });
+        });
+
+        // Tech stack tag removal
+        document.querySelectorAll('#tech-tags .remove-tag').forEach(tag => {
+            tag.addEventListener('click', function () {
+                const techId = this.getAttribute('data-id');
+                const techSelect = document.getElementById('id_tech_stack');
+
+                // Remove from select
+                if (techSelect) {
+                    for (let i = 0; i < techSelect.options.length; i++) {
+                        if (techSelect.options[i].value === techId) {
+                            techSelect.options[i].selected = false;
+                        }
+                    }
+                }
+
+                // Remove from display with animation
+                const tagElement = this.parentElement;
+                tagElement.classList.add('scale-0', 'opacity-0');
+                setTimeout(() => {
+                    tagElement.remove();
+                    updateHiddenSelects(); // Update after removal
+                }, 200);
+            });
+        });
+
+        // Hackathon removal
+        document.querySelectorAll('#hackathon-list .remove-hackathon').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const hackathonId = this.getAttribute('data-id');
+                const hackathonSelect = document.getElementById('id_interested_hackathons');
+
+                // Remove from select
+                if (hackathonSelect) {
+                    for (let i = 0; i < hackathonSelect.options.length; i++) {
+                        if (hackathonSelect.options[i].value === hackathonId) {
+                            hackathonSelect.options[i].selected = false;
+                        }
+                    }
+                }
+
+                // Remove from display with animation
+                const hackathonItem = this.closest('.hackathon-item');
+                hackathonItem.classList.add('opacity-0');
+                setTimeout(() => {
+                    hackathonItem.remove();
+                    updateHiddenSelects(); // Update after removal
+                }, 300);
+            });
+        });
+
+        // Add new skill functionality
+        document.getElementById('add-skill-btn')?.addEventListener('click', function () {
+            const skillInput = document.getElementById('id_new_skills');
+            if (skillInput && skillInput.value.trim() !== '') {
+                const skills = skillInput.value.trim().split(',').map(s => s.trim()).filter(s => s !== '');
+
+                skills.forEach(skill => {
+                    // Create a temporary ID for new skills
+                    const tempId = 'new-skill-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+
+                    // Create and add new skill tag
+                    const newSkill = document.createElement('span');
+                    newSkill.className = 'bg-gradient-to-r from-accent-blue/20 to-accent-blue/30 text-accent-blue px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 border border-accent-blue/20';
+                    newSkill.innerHTML = `
+                            ${skill} 
+                            <span class="remove-tag cursor-pointer hover:bg-accent-blue/20 rounded-full w-5 h-5 flex items-center justify-center transition-all" 
+                                  data-id="${tempId}" 
+                                  data-name="${skill}">×</span>
+                        `;
+
+                    document.getElementById('skills-tags').appendChild(newSkill);
+
+                    // Add to hidden select
+                    addToSelect('id_skills', tempId, skill, true);
+
+                    // Setup removal
+                    setupTagRemoval(newSkill, 'id_skills', tempId);
+                });
+
+                // Clear input and update selects
+                skillInput.value = '';
+                updateHiddenSelects();
+            }
+        });
+
+        // Add new tech functionality
+         document.getElementById('add-tech-btn')?.addEventListener('click', function () {
+            const techInput = document.getElementById('id_new_tech_stack');
+            if (techInput && techInput.value.trim() !== '') {
+                const techs = techInput.value.trim().split(',').map(t => t.trim()).filter(t => t !== '');
+
+                techs.forEach(tech => {
+                    // Create a temporary ID for new tech
+                    const tempId = 'new-tech-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+
+                    // Create and add new tech tag
+                    const newTech = document.createElement('span');
+                    newTech.className = 'bg-gradient-to-r from-purple-500/20 to-purple-600/30 text-purple-400 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 border border-purple-500/20';
+                    newTech.innerHTML = `
+                            ${tech} 
+                            <span class="remove-tag cursor-pointer hover:bg-purple-500/20 rounded-full w-5 h-5 flex items-center justify-center transition-all" 
+                                  data-id="${tempId}" 
+                                  data-name="${tech}">×</span>
+                        `;
+
+                    document.getElementById('tech-tags').appendChild(newTech);
+
+                    // Add to hidden select
+                    addToSelect('id_tech_stack', tempId, tech, true);
+
+                    // Setup removal
+                    setupTagRemoval(newTech, 'id_tech_stack', tempId);
+                });
+
+                // Clear input and update selects
+                techInput.value = '';
+                updateHiddenSelects();
+            }
+        });
+
+        // Add new hackathon functionality
+        document.getElementById('add-hackathon-btn')?.addEventListener('click', function () {
+            const nameInput = document.getElementById('id_hackathon_name');
+            if (nameInput && nameInput.value.trim() !== '') {
+                // Create a unique ID for this hackathon
+                const hackathonId = 'new-hack-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+
+                const levelSelect = document.getElementById('id_hackathon_level');
+                const dateInput = document.getElementById('id_hackathon_date');
+                const descInput = document.getElementById('id_hackathon_description');
+                const locationInput = document.getElementById('id_hackathon_location');
+
+                const levelText = levelSelect?.options[levelSelect.selectedIndex]?.text || '';
+                const today = new Date();
+                const eventDate = dateInput.value ? new Date(dateInput.value) : today;
+
+                // Determine if it's upcoming based on date
+                const badgeClass = eventDate >= today ?
+                    'bg-green-500/20 text-green-400 border border-green-500/20' :
+                    'bg-purple-500/20 text-purple-400 border border-purple-500/20';
+                const badgeText = eventDate >= today ? 'Upcoming' : 'Current';
+
+                // Create new hackathon item
+                const newHackathon = document.createElement('div');
+                newHackathon.className = 'bg-gradient-to-r from-dark-800 to-dark-900 p-4 rounded-lg border border-gray-800 shadow-md hackathon-item ';
+                newHackathon.innerHTML = `
+                        <div class="flex justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="font-medium text-white">${nameInput.value.trim()}</span>
+                                <span class="text-xs px-3 py-1 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/20">
+                                    ${levelText}
+                                </span>
+                                <span class="text-xs px-3 py-1 rounded-full ${badgeClass}">
+                                    ${badgeText}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm text-gray-400">${dateInput.value || 'No date specified'}</span>
+                                <button type="button" class="text-red-400 hover:text-red-300 remove-hackathon" data-id="${hackathonId}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-2">${descInput.value || 'No description provided'}</p>
+                        <div class="flex gap-2 mt-3">
+                            <span class="text-xs px-2 py-1 rounded-full bg-dark-700 text-gray-400">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Location: ${locationInput.value || 'Online'}
+                            </span>
+                        </div>
+                    `;
+
+                document.getElementById('hackathon-list').appendChild(newHackathon);
+
+                // Add to hidden select
+                addToSelect('id_interested_hackathons', hackathonId, nameInput.value.trim(), true);
+
+                // Setup removal
+                const removeBtn = newHackathon.querySelector('.remove-hackathon');
+                removeBtn.addEventListener('click', function () {
+                    newHackathon.classList.add('opacity-0');
+                    setTimeout(() => {
+                        newHackathon.remove();
+                        updateHiddenSelects(); // Update after removal
+                    }, 300);
+                });
+
+                // Animate in
+                setTimeout(() => {
+                    newHackathon.classList.remove('opacity-0');
+                }, 10);
+
+                // Clear inputs and update selects
+                if (nameInput) nameInput.value = '';
+                if (levelSelect) levelSelect.selectedIndex = 0;
+                if (dateInput) dateInput.value = '';
+                if (descInput) descInput.value = '';
+                if (locationInput) locationInput.value = '';
+
+                updateHiddenSelects();
+            }
+        });
+
+        // Profile picture preview
+        const profilePicInput = document.getElementById('{{ form.profile_picture.id_for_label }}');
+        if (profilePicInput) {
+            profilePicInput.addEventListener('change', function () {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const profileImg = document.querySelector('.rounded-full');
+                        if (profileImg) {
+                            if (profileImg.tagName === 'IMG') {
+                                profileImg.src = e.target.result;
+                            } else {
+                                // If using the placeholder div, replace with img
+                                const newImg = document.createElement('img');
+                                newImg.src = e.target.result;
+                                newImg.className = 'rounded-full mx-auto object-cover border-4 border-accent-blue/40 blue-glow shadow-lg';
+                                newImg.width = 180;
+                                newImg.height = 180;
+                                newImg.alt = 'Profile picture';
+
+                                profileImg.parentNode.replaceChild(newImg, profileImg);
+                            }
+                        }
+                    }
+
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // Form validation with nice animations
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                // Update hidden selects before validation
+                updateHiddenSelects();
+
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('border-red-500', 'shake-animation');
+
+                        // Add error message
+                        const errorMsg = document.createElement('p');
+                        errorMsg.className = 'text-red-500 text-xs mt-1 error-message';
+                        errorMsg.textContent = 'This field is required';
+
+                        // Remove any existing error message
+                        const existingError = field.parentNode.querySelector('.error-message');
+                        if (existingError) {
+                            existingError.remove();
+                        }
+
+                        field.parentNode.appendChild(errorMsg);
+
+                        // Remove shake animation after it completes
+                        setTimeout(() => {
+                            field.classList.remove('shake-animation');
+                        }, 500);
+                    } else {
+                        field.classList.remove('border-red-500');
+                        const existingError = field.parentNode.querySelector('.error-message');
+                        if (existingError) {
+                            existingError.remove();
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    // Scroll to first error
+                    const firstError = form.querySelector('.border-red-500');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        }
+    });
+
+    // Function to update all hidden select fields
+    function updateHiddenSelects() {
+        // Update skills select
+        const skillsSelect = document.getElementById('id_skills');
+        if (skillsSelect) {
+            const skillTags = Array.from(document.querySelectorAll('#skills-tags > span')).map(span =>
+                span.querySelector('.remove-tag')?.getAttribute('data-id')
+            ).filter(id => id !== undefined);
+
+            Array.from(skillsSelect.options).forEach(option => {
+                option.selected = skillTags.includes(option.value);
+            });
+        }
+
+        // Update tech stack select
+        const techSelect = document.getElementById('id_tech_stack');
+        if (techSelect) {
+            const techTags = Array.from(document.querySelectorAll('#tech-tags > span')).map(span =>
+                span.querySelector('.remove-tag')?.getAttribute('data-id')
+            ).filter(id => id !== undefined);
+
+            Array.from(techSelect.options).forEach(option => {
+                option.selected = techTags.includes(option.value);
+            });
+        }
+
+        // Update hackathons select
+        const hackSelect = document.getElementById('id_interested_hackathons');
+        if (hackSelect) {
+            const hackTags = Array.from(document.querySelectorAll('#hackathon-list .hackathon-item')).map(item =>
+                item.querySelector('.remove-hackathon')?.getAttribute('data-id')
+            ).filter(id => id !== undefined);
+
+            Array.from(hackSelect.options).forEach(option => {
+                option.selected = hackTags.includes(option.value);
+            });
+        }
+
+        // Debugging configuration
+        const DEBUG_MODE = true; // Set to false in production
+
+        // Debug logging function
+        function debugLog(...messages) {
+            if (DEBUG_MODE) {
+                console.groupCollapsed(...messages);
+                console.trace(); // Show where this was called from
+                console.groupEnd();
+            }
+        }
+
+        // Form Data Inspector
+        function inspectFormData() {
+            if (!DEBUG_MODE) return;
+
+            console.groupCollapsed('🛠️ Form Data Inspection');
+
+            // 1. Check visible UI elements
+            debugLog('UI Elements:');
+            const uiData = {
+                skills: Array.from(document.querySelectorAll('#skills-tags > span')).map(el => ({
+                    text: el.textContent.replace('×', '').trim(),
+                    id: el.querySelector('.remove-tag')?.getAttribute('data-id') || 'new'
+                })),
+                tech: Array.from(document.querySelectorAll('#tech-tags > span')).map(el => ({
+                    text: el.textContent.replace('×', '').trim(),
+                    id: el.querySelector('.remove-tag')?.getAttribute('data-id') || 'new'
+                })),
+                hackathons: Array.from(document.querySelectorAll('#hackathon-list .hackathon-item')).map(el => ({
+                    name: el.querySelector('.font-medium')?.textContent?.trim(),
+                    level: el.querySelector('.text-xs.bg-accent-blue')?.textContent?.trim(),
+                    date: el.querySelector('.text-sm.text-gray-400')?.textContent?.trim(),
+                    id: el.querySelector('.remove-hackathon')?.getAttribute('data-id')
+                }))
+            };
+            console.table(uiData.skills, ['text', 'id']);
+            console.table(uiData.tech, ['text', 'id']);
+            console.table(uiData.hackathons, ['name', 'level', 'date', 'id']);
+
+            // 2. Check hidden form fields
+            debugLog('Hidden Form Fields:');
+            const form = document.querySelector('form');
+            if (form) {
+                const formData = new FormData(form);
+                console.log('FormData entries:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}:`, value);
+                }
+            }
+
+            // 3. Verify hidden selects
+            debugLog('Hidden Selects:');
+            ['skills', 'tech_stack', 'interested_hackathons'].forEach(field => {
+                const select = document.getElementById(`id_${field}`);
+                if (select) {
+                    const selected = Array.from(select.options)
+                        .filter(opt => opt.selected)
+                        .map(opt => opt.value);
+                    console.log(`${field}:`, selected);
+                }
+            });
+
+            console.groupEnd();
+        }
+
+        // Enhanced updateHiddenSelects with debugging
+        function updateHiddenSelects() {
+            debugLog('Updating hidden selects...');
+
+            // Skills
+            const skillsSelect = document.getElementById('id_skills');
+            if (skillsSelect) {
+                const skillTags = Array.from(document.querySelectorAll('#skills-tags > span')).map(span =>
+                    span.querySelector('.remove-tag')?.getAttribute('data-id')
+                ).filter(id => id !== undefined);
+
+                debugLog('Processing skills:', skillTags);
+                Array.from(skillsSelect.options).forEach(option => {
+                    const wasSelected = option.selected;
+                    option.selected = skillTags.includes(option.value);
+                    if (wasSelected !== option.selected && DEBUG_MODE) {
+                        console.log(`Skill ${option.value} ${option.selected ? 'selected' : 'deselected'}`);
+                    }
+                });
+            }
+
+            // Tech Stack
+            const techSelect = document.getElementById('id_tech_stack');
+            if (techSelect) {
+                const techTags = Array.from(document.querySelectorAll('#tech-tags > span')).map(span =>
+                    span.querySelector('.remove-tag')?.getAttribute('data-id')
+                ).filter(id => id !== undefined);
+
+                debugLog('Processing tech stack:', techTags);
+                Array.from(techSelect.options).forEach(option => {
+                    const wasSelected = option.selected;
+                    option.selected = techTags.includes(option.value);
+                    if (wasSelected !== option.selected && DEBUG_MODE) {
+                        console.log(`Tech ${option.value} ${option.selected ? 'selected' : 'deselected'}`);
+                    }
+                });
+            }
+
+            // Hackathons
+            const hackSelect = document.getElementById('id_interested_hackathons');
+            if (hackSelect) {
+                const hackTags = Array.from(document.querySelectorAll('#hackathon-list .hackathon-item')).map(item =>
+                    item.querySelector('.remove-hackathon')?.getAttribute('data-id')
+                ).filter(id => id !== undefined);
+
+                debugLog('Processing hackathons:', hackTags);
+                Array.from(hackSelect.options).forEach(option => {
+                    const wasSelected = option.selected;
+                    option.selected = hackTags.includes(option.value);
+                    if (wasSelected !== option.selected && DEBUG_MODE) {
+                        console.log(`Hackathon ${option.value} ${option.selected ? 'selected' : 'deselected'}`);
+                    }
+                });
+            }
+
+            if (DEBUG_MODE) inspectFormData();
+        }
+
+        // Add debug buttons to the page
+        function addDebugButtons() {
+            if (!DEBUG_MODE) return;
+
+            const debugContainer = document.createElement('div');
+            debugContainer.className = 'fixed bottom-4 right-4 flex flex-col gap-2 z-50';
+
+            const inspectBtn = document.createElement('button');
+            inspectBtn.textContent = '🔍 Inspect Form';
+            inspectBtn.className = 'bg-blue-500 text-white px-3 py-1 rounded text-sm';
+            inspectBtn.onclick = inspectFormData;
+
+            const testBtn = document.createElement('button');
+            testBtn.textContent = '🧪 Run Tests';
+            testBtn.className = 'bg-purple-500 text-white px-3 py-1 rounded text-sm';
+            testBtn.onclick = runTestScenario;
+
+            debugContainer.appendChild(inspectBtn);
+            debugContainer.appendChild(testBtn);
+            document.body.appendChild(debugContainer);
+        }
+
+        // Test scenario
+        function runTestScenario() {
+            if (!DEBUG_MODE) return;
+
+            console.group('🚀 Running Test Scenario');
+
+            // Clear existing data
+            document.querySelectorAll('#skills-tags > span, #tech-tags > span').forEach(el => el.remove());
+            document.querySelectorAll('#hackathon-list .hackathon-item').forEach(el => el.remove());
+
+            // Add test skills
+            debugLog('Adding test skills...');
+            ['JavaScript', 'Python', 'React'].forEach(skill => {
+                const input = document.getElementById('id_new_skills');
+                if (input) {
+                    input.value = skill;
+                    document.getElementById('add-skill-btn')?.click();
+                }
+            });
+
+            // Add test tech
+            debugLog('Adding test tech stack...');
+            ['Django', 'PostgreSQL', 'AWS'].forEach(tech => {
+                const input = document.getElementById('id_new_tech_stack');
+                if (input) {
+                    input.value = tech;
+                    document.getElementById('add-tech-btn')?.click();
+                }
+            });
+
+            // Add test hackathon
+            debugLog('Adding test hackathon...');
+            const hackathonData = {
+                name: 'Debug Hackathon 2023',
+                level: 'advanced',
+                date: '2023-12-15',
+                description: 'This is a test hackathon for debugging',
+                location: 'Virtual'
+            };
+
+            document.getElementById('id_hackathon_name').value = hackathonData.name;
+            document.getElementById('id_hackathon_level').value = hackathonData.level;
+            document.getElementById('id_hackathon_date').value = hackathonData.date;
+            document.getElementById('id_hackathon_description').value = hackathonData.description;
+            document.getElementById('id_hackathon_location').value = hackathonData.location;
+            document.getElementById('add-hackathon-btn')?.click();
+
+            // Simulate form submission
+            setTimeout(() => {
+                debugLog('Simulating form submission...');
+                updateHiddenSelects();
+                inspectFormData();
+                console.groupEnd();
+            }, 500);
+        }
+
+        // Initialize debugging
+        document.addEventListener('DOMContentLoaded', function () {
+            addDebugButtons();
+
+            // Enhanced form submission debugging
+            document.querySelector('form')?.addEventListener('submit', function (e) {
+                if (DEBUG_MODE) {
+                    console.group('Form Submission Debugging');
+                    inspectFormData();
+                }
+
+                updateHiddenSelects();
+
+                if (DEBUG_MODE) {
+                    console.log('Final Form Data before submission:');
+                    const formData = new FormData(this);
+                    for (let [key, value] of formData.entries()) {
+                        console.log(`${key}:`, value);
+                    }
+                    console.groupEnd();
+                }
+            });
+        });
+    }
+</script>
+
+<style>
+    /* Add these styles to your CSS */
+    .shake-animation {
+        animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+    }
+
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+            transform: translateX(-5px);
+        }
+
+        20%,
+        40%,
+        60%,
+        80% {
+            transform: translateX(5px);
+        }
+    }
+
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+
+    .blue-glow {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    }
+
+    .glass-effect {
+        backdrop-filter: blur(10px);
+        background: rgba(17, 24, 39, 0.7);
+    }
+
+    /* Stylish input styling */
+    input,
+    select,
+    textarea {
+        background: rgba(31, 41, 55, 0.8);
+        border: 1px solid rgba(55, 65, 81, 1);
+        border-radius: 9999px;
+        padding: 0.75rem 1rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 1);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .duration-200 {
+        transition-duration: 200ms;
+    }
+    
+    .duration-300 {
+        transition-duration: 300ms;
+    }
+
+    textarea {
+        border-radius: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+
+    /* Checkbox custom styling */
+    input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 0.25rem;
+        background-color: rgba(31, 41, 55, 0.8);
+        border: 1px solid rgba(55, 65, 81, 1);
+    }
+
+    input[type="checkbox"]:focus {
+        --tw-ring-color: rgba(59, 130, 246, 0.3);
+    }
+
+    /* Placeholder styling */
+    ::placeholder {
+        color: rgba(107, 114, 128, 1);
+    }
+
+    #skills-tags>span,
+    #tech-tags>span {
+        transition: all 0.2s ease-in-out;
+    }
+
+    /* Hackathon item animations */
+    .hackathon-item {
+        transition: all 0.3s ease;
+    }
+
+    /* Button gradient */
+    .btn-gradient {
+        background: linear-gradient(to right, #3b82f6, #4f46e5);
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        background: linear-gradient(to right, #2563eb, #4338ca);
+        transform: translateY(-1px);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(17, 24, 39, 0.8);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+    }
+
+    /* Form error state transitions */
+    .error-message {
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

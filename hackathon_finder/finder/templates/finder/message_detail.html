@@ -1,0 +1,39 @@
+{% extends 'finder/base.html' %}
+
+{% block title %}Message - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="glass-effect rounded-xl overflow-hidden border border-opacity-20 border-accent-blue card-hover">
+        <div class="px-6 py-4 bg-dark-800 bg-opacity-50 border-b border-opacity-20 border-accent-blue">
+            <div class="flex justify-between items-center">
+                <h5 class="text-lg font-semibold text-white">
+                    {% if message.sender == user %}
+                        To: <span class="text-accent-cyan">{{ message.receiver.username }}</span>
+                    {% else %}
+                        From: <span class="text-accent-cyan">{{ message.sender.username }}</span>
+                    {% endif %}
+                </h5>
+                <small class="text-gray-400">{{ message.timestamp|date:"F j, Y, g:i a" }}</small>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-300 whitespace-pre-line">{{ message.content }}</p>
+        </div>
+        <div class="px-6 py-4 bg-dark-800 bg-opacity-30 border-t border-opacity-20 border-accent-blue">
+            <div class="flex justify-between">
+                {% if message.sender != user %}
+                    <a href="{% url 'send_message' message.sender.pk %}" class="px-4 py-2 rounded-md text-sm font-medium text-white btn-gradient transition-all hover:shadow-lg">
+                        <i class="fas fa-reply mr-2"></i> Reply
+                    </a>
+                {% else %}
+                    <div></div> <!-- Empty div to maintain space when no reply button -->
+                {% endif %}
+                <a href="{% url 'inbox' %}" class="px-4 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white border border-opacity-30 border-accent-blue transition-all hover:bg-dark-800 hover:bg-opacity-50">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Inbox
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

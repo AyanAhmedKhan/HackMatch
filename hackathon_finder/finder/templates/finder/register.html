@@ -1,0 +1,146 @@
+{% extends 'finder/base.html' %}
+
+{% block title %}Register - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center py-10">
+    <div class="w-full max-w-md">
+        <div class="glass-effect rounded-xl overflow-hidden transition-all card-hover border border-opacity-20 border-accent-blue">
+            <div class="bg-gradient-to-r from-accent-purple to-accent-blue px-6 py-5 relative">
+                <div class="absolute inset-0 bg-grid-white/[0.05] bg-[length:16px_16px]"></div>
+                <h3 class="text-2xl font-bold text-white relative z-10">Join HackMatch</h3>
+                <p class="text-blue-100 mt-1 opacity-80 text-sm relative z-10">Create your account and find your perfect hackathon teammates</p>
+            </div>
+            <div class="p-6">
+                {# Display form errors at the top #}
+                {% if form.non_field_errors %}
+                    <div class="mb-4 p-4 rounded-lg bg-red-900/30 border border-red-500/50 text-red-200">
+                        {% for error in form.non_field_errors %}
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-red-400 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                <p class="text-sm">{{ error }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-5">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-blue-300 mb-1">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-accent-purple">*</span>{% endif %}
+                            </label>
+                            
+                            {% if field.name == 'username' %}
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-accent-blue"></i>
+                                    </div>
+                                    <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.value %}value="{{ field.value }}"{% endif %} class="block w-full pl-10 pr-3 py-3 bg-dark-800/60 border border-opacity-30 {% if field.errors %}border-red-500 focus:ring-red-500 focus:border-red-500{% else %}border-accent-blue focus:ring-accent-blue focus:border-accent-blue{% endif %} rounded-lg shadow-sm placeholder-gray-500 focus:outline-none sm:text-sm transition-all" placeholder="Choose a username">
+                                </div>
+                            {% elif field.name == 'email' %}
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-accent-blue"></i>
+                                    </div>
+                                    <input type="email" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.value %}value="{{ field.value }}"{% endif %} class="block w-full pl-10 pr-3 py-3 bg-dark-800/60 border border-opacity-30 {% if field.errors %}border-red-500 focus:ring-red-500 focus:border-red-500{% else %}border-accent-blue focus:ring-accent-blue focus:border-accent-blue{% endif %} rounded-lg shadow-sm placeholder-gray-500 focus:outline-none sm:text-sm transition-all" placeholder="Enter your email">
+                                </div>
+                            {% elif 'password' in field.name %}
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-accent-blue"></i>
+                                    </div>
+                                    <input type="password" name="{{ field.name }}" id="{{ field.id_for_label }}" class="block w-full pl-10 pr-3 py-3 bg-dark-800/60 border border-opacity-30 {% if field.errors %}border-red-500 focus:ring-red-500 focus:border-red-500{% else %}border-accent-blue focus:ring-accent-blue focus:border-accent-blue{% endif %} rounded-lg shadow-sm placeholder-gray-500 focus:outline-none sm:text-sm transition-all" placeholder="{% if field.name == 'password1' %}Create a password{% else %}Confirm your password{% endif %}">
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            
+                            {% if field.errors %}
+                                <div class="mt-1 text-sm text-red-400">
+                                    {% for error in field.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <div class="mt-1 text-xs text-gray-400">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="mb-5">
+                        <div class="flex items-center">
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                <input type="checkbox" id="agree_terms" name="agree_terms" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:translate-x-full checked:border-accent-blue" required/>
+                                <label for="agree_terms" class="toggle-label block h-5 overflow-hidden rounded-full bg-gray-700 cursor-pointer"></label>
+                            </div>
+                            <label for="agree_terms" class="text-sm text-gray-300 cursor-pointer">
+                                I agree to the <a href="#" class="text-accent-blue hover:text-accent-cyan">Terms of Service</a> and <a href="#" class="text-accent-blue hover:text-accent-cyan">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-medium text-white btn-gradient transition-all transform hover:scale-[1.02] focus:ring-2 focus:ring-offset-2 focus:ring-accent-blue">
+                            <i class="fas fa-user-plus mr-2"></i> Create your account
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-8 relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-700 border-opacity-50"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-3 bg-dark-900/20 text-gray-400 backdrop-blur-sm">Or sign up with</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <div>
+                        <a href="#" class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-700 rounded-lg shadow-sm bg-dark-800/60 text-sm font-medium text-gray-300 hover:border-accent-blue transition-all hover:shadow-md hover:shadow-accent-blue/20">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                            </svg>
+                            <span>GitHub</span>
+                        </a>
+                    </div>
+                    <div>
+                        <a href="#" class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-700 rounded-lg shadow-sm bg-dark-800/60 text-sm font-medium text-gray-300 hover:border-accent-blue transition-all hover:shadow-md hover:shadow-accent-blue/20">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5.36 14.8c-.22.18-.46.32-.72.44-.26.12-.56.2-.88.26-.32.06-.68.08-1.08.08-.48 0-.9-.06-1.28-.18-.38-.12-.7-.3-.96-.52-.26-.22-.46-.5-.6-.82-.14-.32-.22-.7-.22-1.12 0-.42.08-.8.22-1.12.14-.32.34-.6.6-.82.26-.22.58-.4.96-.52.38-.12.8-.18 1.28-.18.4 0 .76.02 1.08.08.32.06.62.14.88.26.26.12.5.28.72.44.22.16.4.36.54.58l-1.78 1.16c-.08-.16-.18-.28-.3-.36-.12-.08-.26-.14-.42-.18-.16-.04-.32-.06-.5-.06-.34 0-.62.08-.84.24-.22.16-.32.42-.32.78s.1.62.32.78c.22.16.5.24.84.24.18 0 .34-.02.5-.06.16-.04.3-.1.42-.18.12-.08.22-.2.3-.36l1.78 1.16c-.14.22-.32.42-.54.58z" />
+                            </svg>
+                            <span>Google</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-400">
+                        Already have an account?
+                        <a href="{% url 'login' %}" class="font-medium text-accent-blue hover:text-accent-cyan transition-colors">
+                            Sign in
+                        </a>
+                    </p>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-gray-500">
+                        By creating an account, you agree to our
+                        <a href="#" class="text-accent-blue hover:text-accent-cyan transition-colors">Terms of Service</a>
+                        and
+                        <a href="#" class="text-accent-blue hover:text-accent-cyan transition-colors">Privacy Policy</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
